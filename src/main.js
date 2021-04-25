@@ -19,7 +19,9 @@ import './core/lazy_use'
 import './permission' // permission control
 import './utils/filter' // global filter
 import './global.less'
+import {paginationMixin} from "@/components/mixin/mixin";
 
+Vue.mixin(paginationMixin);
 Vue.config.productionTip = false
 
 // mount axios to `Vue.$http` and `this.$http`

@@ -38,6 +38,7 @@ const rootRouter = {
   key: '',
   name: 'index',
   path: '/',
+  menuName:'首页',
   component: 'BasicLayout',
   redirect: '/Workplace',
   meta: {
@@ -63,6 +64,7 @@ export const generatorDynamicRouter = (token) => {
         menuName: '工作面板',
         path: '/Workplace',
         component: 'Workplace',
+        name:'workplace',
         icon:'home',
         meta: {
           title: '工作面板'
@@ -90,13 +92,13 @@ export const generator = (routerMap, parent) => {
     const { menuName, show, hideChildren, hiddenHeaderContent, target, icon,component } = item || {}
     let c = constantRouterComponents[item.component ];
     if(!c&&item.children&&item.children.length>0){
-      c  = ()=>import('@/components/parent-view')
+      c  =( ()=>import('@/components/parent-view'))
     }
     const currentRouter = {
       // 如果路由设置了 path，则作为默认 path，否则 路由地址 动态拼接生成如 /dashboard/workplace
       path: item.path || `${parent && parent.path || ''}/${item.key}`,
       // 路由名称，建议唯一
-      name: item.menuName || item.key || '',
+      name: item.menuName || item.key || item.name||'',
       // 该路由对应页面的 组件 :方案1
       // component: constantRouterComponents[item.component || item.key],
       // 该路由对应页面的 组件 :方案2 (动态加载)
@@ -104,12 +106,14 @@ export const generator = (routerMap, parent) => {
 
       // meta: 页面标题, 菜单图标, 页面权限(供指令权限用，可去掉)
       meta: {
-        title: menuName,
+        title: menuName||item.name||item.meta.title,
         icon: icon || undefined,
         hiddenHeaderContent: hiddenHeaderContent,
         target: target,
       }
     }
+
+    debugger
 
     // 是否设置了隐藏菜单
     if (show === false) {

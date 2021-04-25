@@ -18,7 +18,9 @@
     <template v-slot:footerRender>
       <global-footer />
     </template>
+    <page-header-wrapper >
     <router-view />
+  </page-header-wrapper>
   </pro-layout>
 </template>
 
