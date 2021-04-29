@@ -20,7 +20,10 @@ import './permission' // permission control
 import './utils/filter' // global filter
 import './global.less'
 import {paginationMixin} from "@/components/mixin/mixin";
+import {isSuccessRequest} from "./utils/request";
 
+
+Vue.prototype.isSuccessRequest = isSuccessRequest;
 Vue.mixin(paginationMixin);
 Vue.config.productionTip = false
 

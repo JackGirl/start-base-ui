@@ -1,18 +1,20 @@
 <template>
   <div>
     <a-row :gutter="10">
-      <a-col span="24" :xl="14">
-        <a-card style="margin-top: 20px">
-          <a-table :columns="menuColumns" :data-source="menuData" :rowSelection="menuRowSelection">
-            <div slot="action" slot-scope="record">
+      <a-col span="24" :xl="16">
+        <a-card style="margin-top: 20px;height: 600px">
+          <a-table :pagination="false" :row-key="record=>record.menuId" :columns="menuColumns" :data-source="menuData" >
+            <div slot="action" slot-scope="text,record">
+              <a-button type="link" @click="openMenuEdit(record)">编辑</a-button>
             </div>
           </a-table>
         </a-card>
         </a-col>
-      <a-col span="24" :xl="10">
+      <a-col span="24" :xl="8">
           <a-card style="margin-top: 20px">
             <a-table :columns="actionColumns" :data-source="actionData">
-              <div slot="action" slot-scope="record">
+              <div slot="action" slot-scope="text,record">
+                <a-button type="link" @click="openActionEdit(record)">编辑</a-button>
               </div>
             </a-table>
           </a-card>
@@ -23,6 +25,8 @@
 </template>
 
 <script>
+import {listMenus} from "@/api/system/menu";
+
 const columns = [
   {
     title:'菜单名',
@@ -60,7 +64,7 @@ const columns = [
   {
     title:'操作',
     key:'action',
-    scopeSlots:{customRender:'action'}
+    scopedSlots:{customRender:'action'}
   }
 ];
 
@@ -78,7 +82,7 @@ const actionColumns = [
   {
     title:'操作',
     key:'action',
-    scopeSlots:{customRender:'action'}
+    scopedSlots:{customRender:'action'}
   }
 ]
 export default {
@@ -89,19 +93,20 @@ export default {
       menuColumns:columns,
       actionColumns:actionColumns,
       actionData:[],
-      menuRowSelection:{
-        type:'radio',
-        onChange(key,row){}
-      }
+
     }
   },
   mounted() {
-
+    this.loadMenu();
   },
   methods:{
     loadMenu(){
+        listMenus().then(res=>this.menuData = res.data);
+    },
+    openMenuEdit(menu){
 
-    }
+    },
+    openActionEdit(action){}
   }
 }
 </script>

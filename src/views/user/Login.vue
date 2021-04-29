@@ -174,7 +174,6 @@ export default {
           const loginParams = { ...values }
           delete loginParams.account
           loginParams[!state.loginType ? 'email' : 'account'] = values.account
-          loginParams.password = md5(values.password)
           Login(loginParams)
             .then((res) => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))

@@ -10,4 +10,11 @@ export const paginationMixin = {
       }
     }
   },
+  methods:{
+    setPager(res){
+      this.pager.pageSize = res.data.pageSize;
+      this.pager.current = res.data.current;
+      this.pager.total = res.data.total;
+    }
+  }
 };

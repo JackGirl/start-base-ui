@@ -25,7 +25,7 @@ const errorHandler = (error) => {
         description: data.message
       })
     }
-    if (error.response.status === 401 && !(data.result && data.result.isLogin)) {
+    if (error.response.status === 401 ) {
       notification.error({
         message: 'Unauthorized',
         description: 'Authorization verification failed'
@@ -37,7 +37,13 @@ const errorHandler = (error) => {
           }, 1500)
         })
       }
+    }else{
+      notification.error({
+        message: data.error,
+        description: data.message
+      })
     }
+
   }
   return Promise.reject(error)
 }
@@ -70,4 +76,9 @@ export default request
 export {
   installer as VueAxios,
   request as axios
+}
+
+
+export function isSuccessRequest(res){
+  return res&&res.code ===0;
 }
