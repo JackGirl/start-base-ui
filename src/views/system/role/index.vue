@@ -44,6 +44,9 @@
                     rules: [{ required: true, message: '请输入角色名 类似 员工' }],
                   },
                 ]"/>
+          <a-input v-show="false" style="width: 200px;" v-decorator="[
+                  'roleId',
+                ]"/>
         </a-form-item>
         <a-form-item>
           <a-button type="primary" @click="editRole">提交</a-button>
@@ -58,14 +61,7 @@
         scopedSlots:{customRender:'action'}
         }]" :data-source="menuData" :row-key="record=>record.menuId"
                :pagination="false"
-               :rowSelection="{type:'checkbox',onChange:changPermission}">
-        <template slot="action" slot-scope="text,record">
-          <a-checkbox-group
-            v-model="editFormModel.checkedAction"
-            name="menuGroup"
-            :options="record.actions"
-          />
-        </template>
+               :rowSelection="{type:'checkbox',onChange:changPermission,selectedRowKeys:editFormModel.checkedMenu}">
       </a-table>
 
 
@@ -75,9 +71,8 @@
 </template>
 
 <script>
-import {listRoles, rolePermission} from "@/api/system/role";
+import {listRoles, listRoleMenu,updateRoleMenu,newRole} from "@/api/system/role";
 import {listMenus} from "@/api/system/menu";
-import {delArrElement,findElementInTreeArr} from "@/utils";
 
 
 const columns = [
@@ -114,7 +109,6 @@ export default {
       menuData: [],
       editFormModel: {
         checkedMenu: [],
-        checkedAction: []
       },
       data: [],
       createRoleVisible: false,
@@ -132,21 +126,45 @@ export default {
       listRoles().then(res => this.data = res.data)
     },
     createRole() {
-
+      this.roleCreateForm.validateFields((err,values)=>{
+        if(!err){
+          newRole(values).then((res)=>{
+            if(this.isSuccessRequest(res)){
+              this.loadRole();
+              this.createRoleVisible = false;
+              this.$notification['success']({
+                message:'已添加'
+              })
+            }
+          })
+        }
+      })
     },
     openEditRole(role) {
       this.editRoleVisible = true;
       this.roleEditForm.getFieldDecorator('roleName', {initialValue: role.roleName})
+      this.roleEditForm.getFieldDecorator('roleId', {initialValue: role.roleId})
       listMenus().then(res => {
         let menu = res.data;
-        setActionLabel(menu);
         this.menuData = menu;
       });
-      rolePermission(role.roleId).then(res => {
+      listRoleMenu(role.roleId).then(res => {
+        let mu = []
+        res.data.forEach(v=>mu.push(v.menuId))
+        this.editFormModel.checkedMenu = mu
       })
     },
     editRole() {
-      console.info(this.editFormModel)
+      let values = this.roleEditForm.getFieldsValue();
+      updateRoleMenu({...values,menus:this.editFormModel.checkedMenu}).then(res=>{
+        if(this.isSuccessRequest(res)){
+          this.editRoleVisible = false;
+          this.$notification['success']({
+            message:'已修改'
+          })
+          this.loadRole();
+        }
+      })
     },
     /**
      * 选中菜单
@@ -154,42 +172,14 @@ export default {
      * @param selectedRows
      */
     changPermission(selectedRowKeys, selectedRows) {
-
-      let actions = this.editFormModel.checkedAction;
-      this.editFormModel.checkedMenu.forEach(menuId => {
-        let exist = selectedRows.filter(row => row.menuId === menuId);
-        if (!exist || exist.length === 0) {
-          //拿到已经没选择的菜单
-          let menu = findElementInTreeArr(this.menuData,"menuId",menuId,"children")
-          //移除当前菜单下的action
-          if (menu.actions && menu.actions.length > 0) {
-            menu.actions.forEach(ac => {
-              delArrElement(actions, ac.actionId)
-            })
-          }
-        }
-      })
       this.editFormModel.checkedMenu = selectedRowKeys;
-      this.editFormModel.checkedAction = actions;
     }
 
 
   }
 }
 
-function setActionLabel(arr) {
-  arr.forEach(v => {
-    if (v.actions && v.actions.length > 0) {
-      v.actions.forEach(ac => {
-        ac.label = ac.actionName;
-        ac.value = ac.actionId;
-      })
-    }
-    if (v.children && v.children.length > 0) {
-      setActionLabel(v.children)
-    }
-  })
-}
+
 </script>
 
 <style scoped>

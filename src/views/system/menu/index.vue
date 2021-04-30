@@ -1,26 +1,15 @@
 <template>
   <div>
-    <a-row :gutter="10">
-      <a-col span="24" :xl="16">
         <a-card style="margin-top: 20px;height: 600px">
           <a-table :pagination="false" :row-key="record=>record.menuId" :columns="menuColumns" :data-source="menuData" >
+            <div slot="icon" slot-scope="record">
+              <a-icon :type="record.icon" />
+            </div>
             <div slot="action" slot-scope="text,record">
               <a-button type="link" @click="openMenuEdit(record)">编辑</a-button>
             </div>
           </a-table>
         </a-card>
-        </a-col>
-      <a-col span="24" :xl="8">
-          <a-card style="margin-top: 20px">
-            <a-table :columns="actionColumns" :data-source="actionData">
-              <div slot="action" slot-scope="text,record">
-                <a-button type="link" @click="openActionEdit(record)">编辑</a-button>
-              </div>
-            </a-table>
-          </a-card>
-      </a-col>
-    </a-row>
-
   </div>
 </template>
 
@@ -48,8 +37,8 @@ const columns = [
   },
   {
     title:'图标',
-    dataIndex:'icon',
-    key:'icon'
+    key:'icon',
+    scopedSlots: {customRender :'icon'}
   },
   {
     title:'组件路径',
@@ -70,19 +59,19 @@ const columns = [
 
 const actionColumns = [
     {
-    title:'操作名',
-    dataIndex:'actionName',
-    key:'actionName',
+    title:'接口名称',
+    dataIndex:'resourceName',
+    key:'resourceName',
   },
   {
-    title:'操作权限值',
-    dataIndex:'actionValue',
-    key:'actionValue',
+    title:'接口路径',
+    dataIndex:'path',
+    key:'path',
   },
   {
-    title:'操作',
-    key:'action',
-    scopedSlots:{customRender:'action'}
+    title:'资源服务器',
+    key:'resourceServer',
+    scopedSlots:{customRender:'resourceServer'}
   }
 ]
 export default {

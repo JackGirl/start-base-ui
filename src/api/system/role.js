@@ -9,12 +9,31 @@ export function listRoles(){
 }
 
 /**
- * 获取角色的菜单 和 actions
+ * 获取角色的菜单
  */
-export function rolePermission(roleId){
+export function listRoleMenu(roleId){
   return request({
-    url:'/base-server/baseRole/rolePermission',
+    url:'/base-server/baseRole/roleMenus',
     method:'get',
     params:{roleId}
+  })
+}
+
+/**
+ * 修改角色菜单 action
+ */
+export function updateRoleMenu(data){
+  return request({
+    url:'/base-server/baseRole/updateRoleMenu',
+    method:'post',
+    data:data
+  })
+}
+
+export function newRole(data){
+  return request({
+    url:'/base-server/baseRole/newRole',
+    method:'post',
+    data:data
   })
 }
