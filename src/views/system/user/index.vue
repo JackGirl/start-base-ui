@@ -100,14 +100,11 @@
                 ]"/>
               </a-form-item>
               <a-form-item label="手机号">
-                <a-input type="password" v-decorator="[ 'phone',]"/>
+                <a-input type="phone" v-decorator="[ 'phone',]"/>
               </a-form-item>
-              <a-form-item label="密码">
-                <a-input type="password" v-decorator="[
-                  'password',
-                  {
-                    rules: [{ required: true, message: 'Please enter user password' }],
-                  },
+              <a-form-item >
+                <a-input v-show="false"  v-decorator="[
+                  'id',
                 ]"/>
               </a-form-item>
 
@@ -120,7 +117,12 @@
             </a-form>
           </a-tab-pane>
           <a-tab-pane key="role" tab="分配角色" >
-
+            <a-checkbox-group
+              :value="editModel.userRoles"
+              name="roles"
+              :options="editModel.rolesOption"
+              @change="(checkedValues)=>editModel.userRoles = checkedValues"
+            />
           </a-tab-pane>
 
         </a-tabs>
@@ -131,7 +133,9 @@
 </template>
 
 <script>
-import {listUser, updateUser, createUser} from "@/api/system/user";
+import {listUser, updateUser, createUser,getRoleByUserId,updateUserAndPermission} from "@/api/system/user";
+import {listRoles} from "@/api/system/role";
+import {convertToLabelArr, setFormInitValue} from "@/utils/antComponentUtil";
 
 const columns = [
   {
@@ -143,6 +147,11 @@ const columns = [
     title: '用户名',
     dataIndex: 'username',
     key: 'username'
+  },
+  {
+    title: '手机号',
+    dataIndex: 'phone',
+    key: 'phone'
   },
   {
     title: '备注',
@@ -184,6 +193,10 @@ export default {
     return {
       search: {
         username: ''
+      },
+      editModel:{
+        userRoles:[],
+        rolesOption:[],
       },
       createDrawVisible: false,
       editDrawVisible:false,
@@ -244,13 +257,34 @@ export default {
         }
       });
     },
-    openEditUser(){
+    openEditUser(user){
       this.editDrawVisible = true;
+      Promise.all([listRoles(),getRoleByUserId(user.id)])
+      .then(res=>{
+        const roles = res[0].data;
+        const userRoles = res[1].data;
+        this.editModel.rolesOption = convertToLabelArr(roles,"roleName","roleId");
+        this.editModel.userRoles = userRoles.map(item=>{return item.roleId});
+      })
+      setFormInitValue(this.userEditForm,{
+        username:user.username,
+        remark:user.remark,
+        phone:user.phone,
+        id:user.id
+      })
     },
     editUser(){
       this.userEditForm.validateFields((err,values)=>{
         if(!err){
-
+          updateUserAndPermission({user:values,roles:this.editModel.userRoles}).then(res=>{
+            if(this.isSuccessRequest(res)){
+              this.editDrawVisible=false;
+              this.$notification['success']({
+                message: '已修改'
+              })
+              this.loadUser({...this.pager,...this.search});
+            }
+          });
         }
       })
     }

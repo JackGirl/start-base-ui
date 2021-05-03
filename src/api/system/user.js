@@ -23,3 +23,19 @@ export function createUser(data){
     data:data
   })
 }
+
+export function getRoleByUserId(userId){
+  return request({
+    method:'get',
+    url:'/base-server/baseUser/getRolesByUserId',
+    params:{userId}
+  })
+}
+
+export function updateUserAndPermission(data){
+  return request({
+    url:'/base-server/baseUser/updateUserAndRoles',
+    method:'post',
+    data:data
+  })
+}

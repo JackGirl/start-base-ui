@@ -61,7 +61,7 @@ request.interceptors.request.use(config => {
 
 // response interceptor
 request.interceptors.response.use((response) => {
-  return response.data
+  return Promise.resolve(response.data)
 }, errorHandler)
 
 const installer = {

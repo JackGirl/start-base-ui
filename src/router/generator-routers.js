@@ -113,7 +113,6 @@ export const generator = (routerMap, parent) => {
       }
     }
 
-    debugger
 
     // 是否设置了隐藏菜单
     if (show === false) {

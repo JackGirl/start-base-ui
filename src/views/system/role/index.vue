@@ -35,45 +35,94 @@
       </template>
     </a-modal>
 
-    <a-drawer :visible="editRoleVisible" title="编辑角色" @close="editRoleVisible=false" width="50%">
-      <a-form :form="roleEditForm" layout="vertical" hide-required-mark>
-        <a-form-item label="角色名">
-          <a-input style="width: 200px;" v-decorator="[
+    <a-modal :body-style="{height:'600px',overflowY:'auto'}" :visible="editRoleVisible" class="editRoleModal"  title="编辑角色" @ok="editRole" @cancel="editRoleVisible=false" width="50%">
+      <a-tabs default-active-key="role" >
+        <a-tab-pane key="role" tab="角色菜单">
+          <a-form :form="roleEditForm" layout="inline" hide-required-mark>
+            <a-form-item label="角色名">
+              <a-input style="width: 200px;" v-decorator="[
                   'roleName',
                   {
                     rules: [{ required: true, message: '请输入角色名 类似 员工' }],
                   },
                 ]"/>
-          <a-input v-show="false" style="width: 200px;" v-decorator="[
+
+            </a-form-item>
+            <a-form-item>
+              <a-input v-show="false" style="width: 200px;" v-decorator="[
                   'roleId',
                 ]"/>
-        </a-form-item>
-        <a-form-item>
-          <a-button type="primary" @click="editRole">提交</a-button>
-        </a-form-item>
-      </a-form>
-      <a-table :columns="[
+            </a-form-item>
+            <a-form-item label="角色权限标识">
+              <a-input style="width: 200px;" v-decorator="[
+                   'roleValue',
+                  {
+                    rules: [{ required: true, message: '请输入角色标识 类似 ROLE_USER',pattern:'^ROLE_\\w' }],
+                  },
+                ]"/>
+            </a-form-item>
+
+          </a-form>
+          <a-table :columns="[
         {title:'菜单名称',
         dataIndex:'menuName', width:'250px',
         key:'menuName'},
-        {title:'操作按钮',
-        key:'action',
-        scopedSlots:{customRender:'action'}
-        }]" :data-source="menuData" :row-key="record=>record.menuId"
-               :pagination="false"
-               :rowSelection="{type:'checkbox',onChange:changPermission,selectedRowKeys:editFormModel.checkedMenu}">
-      </a-table>
+        ]" :data-source="menuData" :row-key="record=>record.menuId"
+                   :pagination="false"
+                   :rowSelection="{type:'checkbox',onChange:changPermission,selectedRowKeys:editFormModel.checkedMenu}">
+          </a-table>
+        </a-tab-pane>
+        <a-tab-pane key="permission" tab="角色权限">
+          <a-transfer
+            :rowKey="record => record.resourceId"
+            :titles="['可选','已选']"
+            :data-source="resources"
+            :target-keys="targetKeys"
+            show-search
+            :filter-option="(inputValue, item) => item.title.indexOf(inputValue) !== -1"
+            :show-select-all="false"
+            @change="(newKey)=>this.targetKeys = newKey"
+          >
+            <template
+              slot="children"
+              slot-scope="{
+          props: { direction, filteredItems, selectedKeys, disabled: listDisabled },
+          on: { itemSelectAll, itemSelect },
+        }"
+            >
+              <a-table
+                :row-selection="
+            getRowSelection({ disabled: listDisabled, selectedKeys, itemSelectAll, itemSelect })
+          "
+                :columns="[ {
+                dataIndex: 'title',
+                title: '接口名',
+              },{
+                dataIndex: 'resourceServerName',
+                title: '服务器',
+              }]"
+                :data-source="filteredItems"
+                size="small"
+              />
+            </template>
+          </a-transfer>
+        </a-tab-pane>
+      </a-tabs>
 
 
-    </a-drawer>
+
+    </a-modal>
 
   </div>
 </template>
 
 <script>
-import {listRoles, listRoleMenu,updateRoleMenu,newRole} from "@/api/system/role";
-import {listMenus} from "@/api/system/menu";
+import difference from 'lodash/difference';
 
+import {listRoles, listRoleMenu,updateRolePermissions,newRole,listRoleResources} from "@/api/system/role";
+import {listMenus} from "@/api/system/menu";
+import {listResources} from "@/api/system/resources";
+import {listToTree} from "@/utils";
 
 const columns = [
   {
@@ -107,9 +156,13 @@ export default {
   data() {
     return {
       menuData: [],
+      resources:[],
+      //选中打权限
+      targetKeys:[],
       editFormModel: {
         checkedMenu: [],
       },
+
       data: [],
       createRoleVisible: false,
       editRoleVisible: false,
@@ -141,22 +194,46 @@ export default {
       })
     },
     openEditRole(role) {
+      Promise.all([listRoleResources(role.roleId),listResources({status:1}),listMenus(),listRoleMenu(role.roleId)])
+      .then(res=>{
+        let roleResources = res[0].data;
+        let checkedResources = [];
+        roleResources.forEach(resource=>{
+          checkedResources.push(resource.resourceId)
+        });
+        this.targetKeys = checkedResources;
+
+        let resources = res[1].data;
+        resources.forEach(resource=>{
+          resource.key = resource.resourceId;
+          resource.title = resource.resourceName;
+        });
+        this.resources = resources;
+
+        let menu = res[2].data;
+        let tree = [];
+        listToTree(menu,tree,"0",'menuId','parentId')
+        this.menuData = tree;
+
+        let roleMenu = res[3].data;
+        let mu = []
+        roleMenu.forEach(v=>mu.push(v.menuId))
+        this.editFormModel.checkedMenu = mu;
+
+
+      });
+
       this.editRoleVisible = true;
       this.roleEditForm.getFieldDecorator('roleName', {initialValue: role.roleName})
       this.roleEditForm.getFieldDecorator('roleId', {initialValue: role.roleId})
-      listMenus().then(res => {
-        let menu = res.data;
-        this.menuData = menu;
-      });
-      listRoleMenu(role.roleId).then(res => {
-        let mu = []
-        res.data.forEach(v=>mu.push(v.menuId))
-        this.editFormModel.checkedMenu = mu
-      })
+
     },
     editRole() {
       let values = this.roleEditForm.getFieldsValue();
-      updateRoleMenu({...values,menus:this.editFormModel.checkedMenu}).then(res=>{
+      updateRolePermissions({...values,
+        menus:this.editFormModel.checkedMenu,
+        authorities:this.targetKeys
+      }).then(res=>{
         if(this.isSuccessRequest(res)){
           this.editRoleVisible = false;
           this.$notification['success']({
@@ -173,6 +250,24 @@ export default {
      */
     changPermission(selectedRowKeys, selectedRows) {
       this.editFormModel.checkedMenu = selectedRowKeys;
+    },
+    getRowSelection({ disabled, selectedKeys, itemSelectAll, itemSelect }) {
+      return {
+        getCheckboxProps: item => ({ props: { disabled: disabled || item.disabled }}),
+        onSelectAll(selected, selectedRows) {
+          const treeSelectedKeys = selectedRows
+            .filter(item => !item.disabled)
+            .map(({ key }) => key)
+          const diffKeys = selected
+            ? difference(treeSelectedKeys, selectedKeys)
+            : difference(selectedKeys, treeSelectedKeys)
+          itemSelectAll(diffKeys, selected)
+        },
+        onSelect({ key }, selected) {
+          itemSelect(key, selected)
+        },
+        selectedRowKeys: selectedKeys
+      }
     }
 
 

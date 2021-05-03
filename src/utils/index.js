@@ -52,3 +52,25 @@ export function findElementInTreeArr(arr,key,value,childrenKey){
   }
   return null;
 }
+
+
+export function listToTree(list,tree,pid,idProp,pidProp){
+  list.forEach(item => {
+    // 判断是否为父级菜单
+    if (item[pidProp] === pid) {
+      const child = {
+        ...item,
+        key: item.key || item.name,
+        children: []
+      }
+      // 迭代 list， 找到当前菜单相符合的所有子菜单
+      listToTree(list, child.children, item[idProp],idProp,pidProp)
+      // 删掉不存在 children 值的属性
+      if (child.children.length <= 0) {
+        delete child.children
+      }
+      // 加入到树中
+      tree.push(child)
+    }
+  })
+}

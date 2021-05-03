@@ -20,11 +20,11 @@ export function listRoleMenu(roleId){
 }
 
 /**
- * 修改角色菜单 action
+ * 修改角色菜单 和权限
  */
-export function updateRoleMenu(data){
+export function updateRolePermissions(data){
   return request({
-    url:'/base-server/baseRole/updateRoleMenu',
+    url:'/base-server/baseRole/updateRolePermissions',
     method:'post',
     data:data
   })
@@ -35,5 +35,13 @@ export function newRole(data){
     url:'/base-server/baseRole/newRole',
     method:'post',
     data:data
+  })
+}
+
+export function listRoleResources(roleId){
+  return request({
+    url:'/base-server/baseRole/roleResources',
+    method:'get',
+    params:{roleId}
   })
 }
