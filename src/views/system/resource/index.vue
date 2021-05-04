@@ -139,7 +139,6 @@
 
 <script>
 import {listResources, saveResource, updateResource} from '@/api/system/resources'
-import {setFormInitValue} from "@/utils/antComponentUtil";
 
 const columns = [
   {
@@ -221,16 +220,18 @@ export default {
     openEdit(record) {
       this.editVisible = true;
       this.editForm.resetFields();
-      setFormInitValue(this.editForm,{
-        "resourceId":record.resourceId,
-        "path":record.path,
-        "authority":record.authority,
-        "resourceName":record.resourceName,
-        "serviceId":record.serviceId,
-        "isPublic":record.isPublic === 1,
-        "needAuth":record.needAuth === 1,
-        "status":record.status === 1
-      });
+      this.$nextTick(()=>{
+        this.editForm.setFieldsValue({
+          "resourceId":record.resourceId,
+          "path":record.path,
+          "authority":record.authority,
+          "resourceName":record.resourceName,
+          "serviceId":record.serviceId,
+          "isPublic":record.isPublic === 1,
+          "needAuth":record.needAuth === 1,
+          "status":record.status === 1
+        })
+      })
     },
     editResource() {
       this.editForm.validateFields((err, values) => {

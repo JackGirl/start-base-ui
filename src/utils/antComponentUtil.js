@@ -13,14 +13,3 @@ export function convertToLabelArr(arr,labelKey,valueKey){
   })
 }
 
-
-/**
- * 给表单元素设置默认值
- * @param form
- * @param valueMap
- */
-export function setFormInitValue(form,valueMap){
-  for (let valueMapKey in valueMap) {
-    form.getFieldDecorator(valueMapKey, {initialValue: valueMap[valueMapKey]});
-  }
-}

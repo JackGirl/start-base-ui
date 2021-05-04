@@ -4,7 +4,7 @@
       <div style="margin: 10px">
         <a-button type="primary" @click="()=>{this.saveVisible=true;addForm.resetFields()}">添加应用</a-button>
       </div>
-      <a-table bordered :pagination="false" :row-key="record=>record.menuId" :columns="columns" :data-source="apps">
+      <a-table :row-key="record=>record.appId" bordered :pagination="false" :columns="columns" :data-source="apps">
         <div slot="appIcon" slot-scope="record">
           aaa
         </div>
@@ -14,7 +14,7 @@
       </a-table>
     </a-card>
 
-    <!--删改菜单-->
+    <!--删改-->
     <a-modal :body-style="{height:'600px',overflowY:'auto'}" :visible="saveVisible" title="添加应用"
              @ok="saveApplication" @cancel="saveVisible=false" width="500px">
       <a-form :form="addForm">
@@ -27,7 +27,7 @@
                 ]"/>
         </a-form-item>
         <a-form-item  label="应用密钥">
-          <a-input v-decorator="[
+          <a-input type="password" v-decorator="[
                    'appSecret',
                   {
                     rules: [{ required: true, message: '密钥必须输入' }],
@@ -58,7 +58,7 @@
         </a-form-item>
         <a-form-item  label="token有效时间(秒)">
           <a-input type="number" v-decorator="[
-                   'tokenValidTime',
+                   'tokenValidSeconds',
                   {
                     initialValue:7200,
                     rules: [{ required: true, message: 'token有效期必填' }],
@@ -67,7 +67,7 @@
         </a-form-item>
         <a-form-item  label="refreshToken有效时间(秒)">
           <a-input type="number" v-decorator="[
-                   'refreshTokenValidTime',
+                   'refreshTokenValidSeconds',
                   {
                     initialValue:7200,
                     rules: [{ required: true, message: 'token有效期必填' }],
@@ -104,6 +104,100 @@
             </a-radio>
           </a-radio-group>
         </a-form-item>
+        <a-form-item   label="扩展信息(json格式)">
+          <a-input type="textarea" v-decorator="[ 'jsonInformation', ]"/>
+        </a-form-item>
+      </a-form>
+
+
+    </a-modal>
+
+    <a-modal :body-style="{height:'600px',overflowY:'auto'}" :visible="editVisible" title="修改应用"
+             @ok="editApplication" @cancel="editVisible=false" width="500px">
+      <a-form :form="editForm" ref="editForm">
+        <a-form-item  label="应用名称">
+          <a-input v-decorator="[
+                   'appName',
+                  {
+                    rules: [{ required: true, message: '应用名必输入' }],
+                  },
+                ]"/>
+        </a-form-item>
+        <a-form-item v-show="false"  >
+          <a-input v-decorator="[ 'appId',  ]"/>
+        </a-form-item>
+        <a-form-item  label="应用类型">
+          <a-radio-group  v-decorator="['appType',{initialValue:'WEB'}]" name="appTypeGroup" >
+            <a-radio v-for="type in appType" :value="type.value">
+              {{ type.name }}
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item  label="回调地址">
+          <a-input v-decorator="[
+                   'redirectUri',
+                  {
+                    rules: [{ required: true, message: '回调地址必填多个逗号隔开' }],
+                  },
+                ]"/>
+        </a-form-item>
+        <a-form-item label="认证类型">
+          <a-checkbox-group
+            v-decorator="['grantTypes', { initialValue:[],rules: [{ required: true, message: '认证类型必选' }] }]"
+            name="grantGroup"
+            :options="grantTypes"
+          />
+        </a-form-item>
+        <a-form-item  label="token有效时间(秒)">
+          <a-input type="number" v-decorator="[
+                   'tokenValidSeconds',
+                  {
+                    rules: [{ required: true, message: 'token有效期必填' }],
+                  },
+                ]"/>
+        </a-form-item>
+        <a-form-item  label="refreshToken有效时间(秒)">
+          <a-input type="number" v-decorator="[
+                   'refreshTokenValidSeconds',
+                  {
+                    rules: [{ required: true, message: 'token有效期必填' }],
+                  },
+                ]"/>
+        </a-form-item>
+        <a-form-item  label="是否自动授权">
+          <a-radio-group name="autoGroup" v-decorator="['autoApproval',{initialValue:0}]" >
+            <a-radio  :value="1">
+              是
+            </a-radio>
+            <a-radio :value="0">
+              否
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item  label="是否内部应用">
+          <a-radio-group name="internalGroup" v-decorator="['internal',{initialValue:0}]">
+            <a-radio  :value="1">
+              是
+            </a-radio>
+            <a-radio :value="0">
+              否
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item  label="是否有效">
+          <a-radio-group name="statusGroup" v-decorator="['status',{initialValue:1}]">
+            <a-radio  :value="1">
+              是
+            </a-radio>
+            <a-radio :value="0">
+              否
+            </a-radio>
+          </a-radio-group>
+
+        </a-form-item>
+        <a-form-item   label="扩展信息(json格式)">
+          <a-input type="textarea" v-decorator="[ 'jsonInformation', ]"/>
+        </a-form-item>
       </a-form>
 
 
@@ -129,14 +223,9 @@ const columns = [
     key: 'appName'
   },
   {
-    title: 'appType',
+    title: 'app类型',
     dataIndex: 'appType',
     key: 'appType',
-  },
-  {
-    title: '应用图标',
-    key: 'appIcon',
-    scopedSlots: {customRender: 'appIcon'}
   },
   {
     title: '回调地址',
@@ -144,13 +233,9 @@ const columns = [
     key: 'redirectUri'
   },
   {
-    title: 'scope',
-    dataIndex: 'scope',
-    key: 'scope',
-  },
-  {
     title: '认证类型',
     key: 'grantTypes',
+    dataIndex: "grantTypes"
   },
   {
     title: 'token有效期(秒)',
@@ -159,8 +244,8 @@ const columns = [
   },
   {
     title: 'refreshToken有效期',
-    key: 'refreshTokenValidTime',
-    dataIndex: "refreshTokenValidTime"
+    key: 'refreshTokenValidSeconds',
+    dataIndex: "refreshTokenValidSeconds"
   },
   {
     title: '是否自动授权',
@@ -202,23 +287,81 @@ export default {
   name: 'application',
   data(){
     return{
+      search:{
+        appId:'',
+        appName:''
+      },
       apps:[],
       appType:appType,
       columns:columns,
+      editForm:this.$form.createForm(this),
       addForm:this.$form.createForm(this),
+      editVisible:false,
       saveVisible:false,
       grantTypes:grantTypes
     }
   },
+  mounted() {
+    this.loadApps({...this.search,...this.pager})
+    },
   methods:{
+    loadApps(params){
+      listApplication(params).then(res=>{
+        this.apps = res.data.records;
+        this.setPager(res);
+      })
+    },
     saveApplication(){
       this.addForm.validateFields((err,values)=>{
         if(!err){
-          console.info(values)
+          createApp({...values,grantTypes:values.grantTypes+''}).then(res=>{
+            if(this.isSuccessRequest(res)){
+              this.saveVisible = false;
+              this.$notification['success']({
+                message:"已添加"
+              });
+              this.loadApps({...this.search,...this.pager})
+            }
+          })
         }
       })
     },
-    showEditForm(app){}
+    showEditForm(app){
+      console.info(app.grantTypes.split(","))
+      this.editVisible = true;
+      this.$nextTick(()=>{
+        this.editForm.setFieldsValue({
+          appId:app.appId,
+          appName:app.appName,
+          status:app.status,
+          internal:app.internal,
+          refreshTokenValidSeconds:app.refreshTokenValidSeconds,
+          tokenValidSeconds:app.tokenValidSeconds,
+          autoApproval:app.autoApproval,
+          redirectUri:app.redirectUri,
+          grantTypes:app.grantTypes.split(","),
+          appType:app.appType,
+          appIcon:app.appIcon,
+          jsonInformation:app.jsonInformation
+        })
+      })
+
+    },
+    editApplication(){
+      this.editForm.validateFields((err,values)=>{
+        if(!err){
+          updateApp({...values,grantTypes:values.grantTypes+''}).then(res=>{
+            if(this.isSuccessRequest(res)){
+              this.editVisible = false;
+              this.$notification['success']({
+                message:"已添加"
+              });
+              this.loadApps({...this.search,...this.pager})
+            }
+          })
+        }
+      })
+    }
   }
 }
 </script>

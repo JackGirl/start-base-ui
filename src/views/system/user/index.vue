@@ -135,7 +135,7 @@
 <script>
 import {listUser, updateUser, createUser,getRoleByUserId,updateUserAndPermission} from "@/api/system/user";
 import {listRoles} from "@/api/system/role";
-import {convertToLabelArr, setFormInitValue} from "@/utils/antComponentUtil";
+import {convertToLabelArr} from "@/utils/antComponentUtil";
 
 const columns = [
   {
@@ -266,11 +266,13 @@ export default {
         this.editModel.rolesOption = convertToLabelArr(roles,"roleName","roleId");
         this.editModel.userRoles = userRoles.map(item=>{return item.roleId});
       })
-      setFormInitValue(this.userEditForm,{
-        username:user.username,
-        remark:user.remark,
-        phone:user.phone,
-        id:user.id
+      this.$nextTick(()=>{
+        this.userEditForm.setFieldsValue({
+          username:user.username,
+          remark:user.remark,
+          phone:user.phone,
+          id:user.id
+        })
       })
     },
     editUser(){

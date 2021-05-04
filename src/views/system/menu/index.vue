@@ -89,7 +89,6 @@
 import {listMenus, updateMenu, removeMenu,createMenu} from "@/api/system/menu";
 import IconSelect from "@/components/IconSelector/IconSelector";
 import {listToTree} from "@/utils";
-import {setFormInitValue} from "@/utils/antComponentUtil";
 import {isSuccessRequest} from "@/utils/request";
 
 const columns = [
@@ -179,14 +178,17 @@ export default {
       this.$nextTick(()=>this.reuseForm.resetFields())
       this.modalTitle = "修改菜单";
       this.reuseModal.actionType = 'edit';
-      setFormInitValue(this.reuseForm, {
-        'menuName': menu.menuName,
-        "path": menu.path,
-        "component": menu.component,
-        "target": menu.target,
-        'priority': menu.priority,
-        "redirect": menu.redirect
-      });
+      this.$nextTick(()=>{
+        this.reuseForm.setFieldsValue({
+          'menuName': menu.menuName,
+          "path": menu.path,
+          "component": menu.component,
+          "target": menu.target,
+          'priority': menu.priority,
+          "redirect": menu.redirect
+        })
+      })
+
       this.reuseModal.icon = menu.icon;
       this.reuseModal.pid = menu.parentId
       this.reuseModal.menuId = menu.menuId;
