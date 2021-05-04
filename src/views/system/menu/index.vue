@@ -165,16 +165,18 @@ export default {
         this.menuData = data
       });
     },
-    openAdd(menu) {
+    openAdd() {
       this.reuseFormVisible = true;
-      this.reuseForm.resetFields();
+      this.$nextTick(()=>this.reuseForm.resetFields())
       this.modalTitle = "添加菜单";
+      this.reuseModal.pid = 0;
+      this.reuseModal.icon='';
       this.reuseModal.actionType = 'add';
 
     },
     openMenuEdit(menu) {
       this.reuseFormVisible = true;
-      this.reuseForm.resetFields();
+      this.$nextTick(()=>this.reuseForm.resetFields())
       this.modalTitle = "修改菜单";
       this.reuseModal.actionType = 'edit';
       setFormInitValue(this.reuseForm, {
