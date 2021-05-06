@@ -197,11 +197,7 @@ export default {
       Promise.all([listRoleResources(role.roleId),listResources({status:1}),listMenus(),listRoleMenu(role.roleId)])
       .then(res=>{
         let roleResources = res[0].data;
-        let checkedResources = [];
-        roleResources.forEach(resource=>{
-          checkedResources.push(resource.resourceId)
-        });
-        this.targetKeys = checkedResources;
+        this.targetKeys = roleResources.map(r=>r.resourceId);
 
         let resources = res[1].data;
         resources.forEach(resource=>{
