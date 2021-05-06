@@ -17,7 +17,6 @@ const request = axios.create({
 const errorHandler = (error) => {
   if (error.response) {
     const data = error.response.data
-    console.info(data)
     // 从 localstorage 获取 token
     const token = storage.get(ACCESS_TOKEN)
     if (error.response.status === 403) {

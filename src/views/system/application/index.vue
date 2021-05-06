@@ -416,7 +416,6 @@ export default {
       })
     },
     showEditForm(app) {
-      console.info(app.grantTypes.split(","))
       this.editVisible = true;
       this.$nextTick(() => {
         this.editForm.setFieldsValue({
@@ -480,6 +479,10 @@ export default {
           const authorities = res[0].data;
           let resultResources = pullAllBy(resources, authorities, "resourceId");
           const result = concat(resultResources, authorities);
+          result.forEach(r=>{
+            r.key = r.resourceId;
+            r.title = r.resourceName;
+          })
           this.authoritiesModel.resources =result
           this.authoritiesModel.selectedRowKeys = authorities.map(row => row.resourceId)
         }).catch(() => this.authoritiesModel.loadingFlag = false);
@@ -519,7 +522,6 @@ export default {
           this.loadAppAuthoritiesByAppId(this.authoritiesModel.appId);
         })
       }
-      // this.authoritiesModel.selectedRowKeys = targetKeys;
     },
     changeAuthorityTime(time, record) {
       updateAppAuthority({expireTime:time,relationId:record.appResourceId}).then(res=>{
