@@ -182,7 +182,11 @@ const columns = [
     dataIndex: 'authority',
     key: 'authority'
   },
-
+  {
+    title: '创建时间',
+    dataIndex: 'createTime',
+    key: 'createTime'
+  },
   {
     title: '操作',
     key: 'action',
