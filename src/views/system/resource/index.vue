@@ -84,10 +84,13 @@
     <div>
       <a-drawer title="修改资源" :visible="editVisible" width="40%" @close="editVisible=false">
         <a-form :form="editForm" layout="vertical" hide-required-mark>
-          <a-form-item label="资源名称">
+          <a-form-item>
             <a-input v-show="false" style="width: 200px;" v-decorator="[
                   'resourceId',
                 ]"/>
+          </a-form-item>
+          <a-form-item label="资源名称">
+
             <a-input v-decorator="[
                   'resourceName',
                   {

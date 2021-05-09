@@ -2,7 +2,7 @@
   <div>
     <a-card style="margin-top: 20px;height: 600px">
       <div style="margin: 10px">
-        <a-button type="primary" @click="openAdd">添加菜单</a-button>
+        <a-button type="primary" @click="openAdd">添加路由</a-button>
       </div>
       <a-table :pagination="false" :row-key="record=>record.serviceId" :columns="columns" :data-source="servers">
         <div slot="action" slot-scope="text,record">

@@ -166,7 +166,17 @@ export default {
     },
     openAdd() {
       this.reuseFormVisible = true;
-      this.$nextTick(()=>this.reuseForm.resetFields())
+      /**
+       * 这里赋不了  有时间再看 。。。。。懂得都懂
+       */
+      this.$nextTick(()=> this.reuseForm.setFieldsValue({
+        'menuName': '',
+        "path":'',
+        "component": '',
+        "target":null,
+        'priority': 0,
+        "redirect": null
+      }))
       this.modalTitle = "添加菜单";
       this.reuseModal.pid = 0;
       this.reuseModal.icon='';
@@ -175,7 +185,6 @@ export default {
     },
     openMenuEdit(menu) {
       this.reuseFormVisible = true;
-      this.$nextTick(()=>this.reuseForm.resetFields())
       this.modalTitle = "修改菜单";
       this.reuseModal.actionType = 'edit';
       this.$nextTick(()=>{
