@@ -25,11 +25,17 @@ const errorHandler = (error) => {
         description: data.message
       })
     }
-    if (error.response.status === 401 ) {
+    if (error.response.status === 429 ) {
+      notification.error({
+        message: 'TooMany Request',
+        description: '请求太频繁(block by sentinel)'
+      })
+    }else if (error.response.status === 401 ) {
       notification.error({
         message: 'Unauthorized',
         description: 'Authorization verification failed'
       })
+
       if (token) {
         store.dispatch('Logout').then(() => {
           setTimeout(() => {
