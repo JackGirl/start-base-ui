@@ -25,7 +25,7 @@ const errorHandler = (error) => {
         description: data.message
       })
     }
-    if (error.response.status === 429 ) {
+    else if (error.response.status === 429 ) {
       notification.error({
         message: 'TooMany Request',
         description: '请求太频繁(block by sentinel)'
@@ -44,6 +44,7 @@ const errorHandler = (error) => {
         })
       }
     }else{
+      console.info(error.response)
       notification.error({
         message: data.error,
         description: data.message
