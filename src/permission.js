@@ -24,7 +24,7 @@ router.beforeEach((to, from, next) => {
       next()
       NProgress.done()
     } else {
-
+      debugger
       store.dispatch('GetInfo');
       store.dispatch('GenerateRoutes',{token:storage.get(ACCESS_TOKEN)}).then(()=>{
         router.addRoutes(store.getters.addRouters)
