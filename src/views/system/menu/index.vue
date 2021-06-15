@@ -1,10 +1,10 @@
 <template>
   <div>
-    <a-card style="margin-top: 20px;height: 600px">
+    <a-card style="margin-top: 20px;">
       <div style="margin: 10px">
-        <a-button type="primary" @click="reuseFormVisible=true">添加菜单</a-button>
+        <a-button type="primary" @click="openAdd">添加菜单</a-button>
       </div>
-      <a-table :pagination="false" :row-key="record=>record.menuId" :columns="menuColumns" :data-source="menuData">
+      <a-table height="600px" :pagination="false" :row-key="record=>record.menuId" :columns="menuColumns" :data-source="menuData">
         <div slot="icon" slot-scope="record">
           <a-icon :type="record.icon"/>
         </div>

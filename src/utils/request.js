@@ -46,8 +46,7 @@ const errorHandler = (error) => {
     }else{
       console.info(error.response)
       notification.error({
-        message: data.error,
-        description: data.message
+        message: data.message,
       })
     }
 

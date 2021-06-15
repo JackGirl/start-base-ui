@@ -67,7 +67,7 @@
         {title:'菜单名称',
         dataIndex:'menuName', width:'250px',
         key:'menuName'},
-        ]" :data-source="menuData" :row-key="record=>record.menuId"
+        ]" :data-source="menuData"   v-if="menuData.length>0" defaultExpandAllRows :row-key="record=>record.menuId"
                    :pagination="false"
                    :rowSelection="{type:'checkbox',onChange:changPermission,selectedRowKeys:editFormModel.checkedMenu}">
           </a-table>
