@@ -15,7 +15,10 @@
   </a-card>
   <a-card style="margin-top: 20px">
     <a-table :data-source="modelData" bordered :columns="modelColumns">
-
+      <template slot-scope="scope" slot="action">
+        <a-button>编辑模型</a-button>
+        <a-button>发布模型</a-button>
+      </template>
     </a-table>
   </a-card>
 
@@ -61,6 +64,11 @@ const columns = [
     key: 'metaInfo',
     dataIndex: 'metaInfo',
   },
+  {
+    title: '操作',
+    key: 'action',
+    scopedSlots:{customRender:'action'}
+  },
 ];
 
 export default {
@@ -74,6 +82,9 @@ export default {
   },
   mounted() {
     listModel().then(res=>this.modelData = res.data.records);
+  },
+  methods:{
+
   }
 }
 </script>
